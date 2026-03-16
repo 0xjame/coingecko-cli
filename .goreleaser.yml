@@ -1,0 +1,44 @@
+version: 2
+
+project_name: cg
+
+builds:
+  - binary: cg
+    main: .
+    ldflags:
+      - -s -w -X github.com/coingecko/coingecko-cli/cmd.version={{.Version}} -X github.com/coingecko/coingecko-cli/cmd.commit={{.Commit}} -X github.com/coingecko/coingecko-cli/cmd.date={{.Date}}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+
+brews:
+  - repository:
+      owner: coingecko
+      name: homebrew-coingecko-cli
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: https://github.com/coingecko/coingecko-cli
+    description: CoinGecko CLI — cryptocurrency data at your fingertips
+    license: MIT
+    install: |
+      bin.install "cg"
+    test: |
+      system "#{bin}/cg", "version"
